@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Delete } from "lucide-react";
 
 const Formfield = () => {
   const [inputData, setInputData] = useState({
@@ -8,6 +9,11 @@ const Formfield = () => {
     email: "",
   });
   const [allData, setAllData] = useState([]);
+
+  useEffect(() => {
+    let data = JSON.parse(localStorage.getItem("formData"));
+    setAllData(data);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,18 +31,23 @@ const Formfield = () => {
       dob: "",
       email: "",
     });
-    // Retrieve existing form data array from localStorage
+
     let existingData = JSON.parse(localStorage.getItem("formData"));
     if (!Array.isArray(existingData)) {
-      // Initialize existingData as an empty array if it's not an array
       existingData = [];
     }
-    // Add new form data entry to the array
     const newData = { ...inputData };
     const updatedData = [...existingData, newData];
-    // Store the updated array back in localStorage
     localStorage.setItem("formData", JSON.stringify(updatedData));
-    // Update the state to reflect the new entry
+    setAllData(updatedData);
+  };
+
+  const deleteClick = (index) => {
+    let updatedData = [...allData]; // Create a copy of allData
+    updatedData.splice(index, 1); // Remove the item at the specified index
+    localStorage.setItem("formData", JSON.stringify(updatedData));
+
+    // Update the allData state to reflect the deletion
     setAllData(updatedData);
   };
 
@@ -97,15 +108,22 @@ const Formfield = () => {
                 <td className="px-2 py-3">age</td>
                 <td className="px-2 py-3">dob</td>
                 <td className="px-2 py-3">email</td>
+                <td className="px-2 py-3"></td>
               </tr>
             </thead>
             <tbody>
-              {allData.map((data) => (
-                <tr>
+              {allData.map((data, index) => (
+                <tr key={data.candidatename + index}>
                   <td className="px-2 py-3">{data.candidatename}</td>
                   <td className="px-2 py-3">{data.age}</td>
                   <td className="px-2 py-3">{data.dob}</td>
                   <td className="px-2 py-3">{data.email}</td>
+                  <td className="px-2 py-3">
+                    <Delete
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => deleteClick(index)}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>
